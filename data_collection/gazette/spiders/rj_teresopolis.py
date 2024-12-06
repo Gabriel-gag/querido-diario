@@ -3,8 +3,9 @@ import scrapy
 import json
 import sys
 import os
+from datetime import datetime
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-#import baixando_pdf
+from baixando_pdf import rodar
 
 from gazette.items import Gazette
 from gazette.spiders.base import BaseGazetteSpider
@@ -30,6 +31,14 @@ class UFMunicipioSpider(BaseGazetteSpider): #BaseGazetteSpider):
             codigo = item.get("codigo", None)
             if codigo:
                 codigos.append(codigo)
+                #file_url = rodar(item.get("dataPublicacao"), codigo, "3305802")
+                yield Gazette(
+                    date = datetime.strptime(item.get("dataPublicacao"), "%Y-%m-%d").date(),
+                    edition_number = item.get("edicao", None),
+                    is_extra_edition = False,
+                    file_urls = ['https://atos.teresopolis.rj.gov.br/diario/#/diarios'],
+                    power = "executive",
+                )
                 
         self.logger.info(f"Código extraído: {codigos}")
 
@@ -39,11 +48,3 @@ class UFMunicipioSpider(BaseGazetteSpider): #BaseGazetteSpider):
         # ... o que deve ser feito para coletar NÚMERO DA EDIÇÃO?
         # ... o que deve ser feito para coletar se a EDIÇÃO É EXTRA?
         # ... o que deve ser feito para coletar a URL DE DOWNLOAD do arquivo?
-
-        yield Gazette(
-            date = date(),
-            edition_number = "",
-            is_extra_edition = False,
-            file_urls = [""],
-            power = "executive",
-        )

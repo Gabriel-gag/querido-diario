@@ -4,7 +4,7 @@ import time
 import os
 
 
-def rodar(date, codigo):
+def rodar(date, codigo, territoy):
 
     with sync_playwright() as p:
         navegador = p.chromium.launch(headless=False)
@@ -12,7 +12,7 @@ def rodar(date, codigo):
         pagina = contexto.new_page()
 
         # Diretório para os downloads
-        caminho_diretorio = os.path.join(os.getcwd(), f"meus_downloads/{date}")
+        caminho_diretorio = os.path.join(os.getcwd(), f"data_collection/data/{territoy}/{date}")
         os.makedirs(caminho_diretorio, exist_ok=True)
 
         pagina.goto(f"https://atos.teresopolis.rj.gov.br/diario/#/diario/{codigo}")
@@ -30,8 +30,18 @@ def rodar(date, codigo):
         download.save_as(arquivo_caminho)
         print(f"Arquivo salvo em: {arquivo_caminho}")
 
-        time.sleep(5)
+        pagina.goto(f"chrome://downloads/")
+        pagina.locator('#copy-download-link').click()
+        link_copiado = pagina.evaluate('navigator.clipboard.readText()')
+        print(link_copiado)
+        #pagina.locator('#copy-download-link').click()
+        #time.sleep(5)
         navegador.close()
+        return link_copiado
         #for elemento in elementos.all_text_contents():  # Obtém o texto de cada elemento
         #    print(elemento)
         #navegador.close()s
+
+if __name__ == "__main__":
+    pr = rodar("20-8-56", '2080', '306040')
+    print(pr)
